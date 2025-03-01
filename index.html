@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <title>Bill Calculator</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -22,6 +24,8 @@
     }
     label {
       font-weight: bold;
+      display: block;
+      margin-top: 10px;
     }
     input, select {
       width: 100%;
@@ -29,6 +33,7 @@
       margin: 8px 0;
       border: 1px solid #ccc;
       border-radius: 5px;
+      box-sizing: border-box;
     }
     button {
       background: #28a745;
@@ -39,6 +44,7 @@
       border-radius: 5px;
       cursor: pointer;
       font-size: 16px;
+      margin-top: 10px;
     }
     button:hover {
       background: #218838;
@@ -53,25 +59,54 @@
     }
     .print-btn {
       background: #007bff;
-      margin-top: 10px;
     }
   </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Bill Calculator</h2>
+    
+    <label for="gross">Gross Value:</label>
+    <input type="number" id="gross" placeholder="Enter Gross Value">
+    
+    <label for="entity">Entity Type:</label>
+    <select id="entity">
+      <option value="individual">Individual</option>
+      <option value="firm">Firm</option>
+    </select>
+    
+    <button onclick="calculateBill()">Calculate</button>
+    
+    <div id="output"></div>
+    
+    <button class="print-btn" onclick="printResults()">Print Results</button>
+  </div>
+
   <script>
     function calculateBill() {
-      var gross = document.getElementById("gross").value;
+      var gross = parseFloat(document.getElementById("gross").value);
       var entity = document.getElementById("entity").value;
-      
-      if (!gross) {
-        alert("Please enter a Gross Value.");
+
+      if (isNaN(gross) || gross <= 0) {
+        alert("Please enter a valid Gross Value.");
         return;
       }
 
-      google.script.run.withSuccessHandler(displayResults).calculateValues(gross, entity);
-    }
+      // Perform calculations locally (without Google Apps Script)
+      var taxable = gross / 1.18;
+      var IT = entity === "individual" ? Math.round(taxable * 0.01) : Math.round(taxable * 0.02);
+      var WHA = Math.round(gross * 0.05);
+      var GST = taxable > 250000 ? Math.ceil(taxable * 0.02 / 2) * 2 : 0;
+      var net = gross - IT - WHA;
+      var ECS = net - GST;
 
-    function displayResults(results) {
       var outputDiv = document.getElementById("output");
-      outputDiv.innerHTML = results;
+      outputDiv.innerHTML = `<strong>IT:</strong> ₹${IT} <br> 
+                             <strong>WHA:</strong> ₹${WHA} <br> 
+                             <strong>Net:</strong> ₹${net} <br> 
+                             <strong>GST:</strong> ₹${GST} <br> 
+                             <strong>ECS:</strong> ₹${ECS}`;
       outputDiv.style.display = "block";
     }
 
@@ -86,27 +121,6 @@
       printWindow.print();
     }
   </script>
-</head>
-<body>
-
-  <div class="container">
-    <h2>Bill Calculator</h2>
-    
-    <label>Gross Value:</label>
-    <input type="number" id="gross" placeholder="Enter Gross Value">
-    
-    <label>Entity Type:</label>
-    <select id="entity">
-      <option value="individual">Individual</option>
-      <option value="firm">Firm</option>
-    </select>
-    
-    <button onclick="calculateBill()">Calculate</button>
-    
-    <div id="output"></div>
-    
-    <button class="print-btn" onclick="printResults()">Print Results</button>
-  </div>
 
 </body>
 </html>
