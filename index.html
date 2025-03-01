@@ -57,6 +57,19 @@
       border-radius: 5px;
       display: none;
     }
+    table {
+      width: 100%;
+      margin-top: 10px;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #f8d775;
+    }
     .print-btn {
       background: #007bff;
     }
@@ -93,7 +106,7 @@
         return;
       }
 
-      // Perform calculations locally (without Google Apps Script)
+      // Perform calculations locally
       var taxable = gross / 1.18;
       var IT = entity === "individual" ? Math.round(taxable * 0.01) : Math.round(taxable * 0.02);
       var WHA = Math.round(gross * 0.05);
@@ -102,11 +115,16 @@
       var ECS = net - GST;
 
       var outputDiv = document.getElementById("output");
-      outputDiv.innerHTML = `<strong>IT:</strong> ₹${IT} <br> 
-                             <strong>WHA:</strong> ₹${WHA} <br> 
-                             <strong>Net:</strong> ₹${net} <br> 
-                             <strong>GST:</strong> ₹${GST} <br> 
-                             <strong>ECS:</strong> ₹${ECS}`;
+      outputDiv.innerHTML = `
+        <table>
+          <tr><th>Deduction</th><th>Amount (₹)</th></tr>
+          <tr><td>IT</td><td>${IT}</td></tr>
+          <tr><td>WHA</td><td>${WHA}</td></tr>
+          <tr><td>Net</td><td>${net}</td></tr>
+          <tr><td>GST</td><td>${GST}</td></tr>
+          <tr><td>ECS</td><td>${ECS}</td></tr>
+        </table>
+      `;
       outputDiv.style.display = "block";
     }
 
