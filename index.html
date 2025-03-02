@@ -1,145 +1,191 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta charset="UTF-8">
-  <title>Bill Calculator</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 30px;
-      background-color: #f4f4f4;
-    }
-    .container {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-      max-width: 400px;
-      margin: auto;
-    }
-    h2 {
-      color: #333;
-    }
-    label {
-      font-weight: bold;
-      display: block;
-      margin-top: 10px;
-    }
-    input, select {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      box-sizing: border-box;
-    }
-    button {
-      background: #28a745;
-      color: white;
-      padding: 10px;
-      width: 100%;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-      margin-top: 10px;
-    }
-    button:hover {
-      background: #218838;
-    }
-    #output {
-      margin-top: 20px;
-      font-size: 18px;
-      padding: 10px;
-      background: #fff3cd;
-      border-radius: 5px;
-      display: none;
-    }
-    table {
-      width: 100%;
-      margin-top: 10px;
-      border-collapse: collapse;
-    }
-    th, td {
-      padding: 10px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-    }
-    th {
-      background-color: #f8d775;
-    }
-    .print-btn {
-      background: #007bff;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bill Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+            width: 350px;
+            text-align: center;
+        }
+        label, input, select, button {
+            display: block;
+            margin: 10px auto;
+            width: 90%;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background: #6a11cb;
+            color: white;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #2575fc;
+        }
+        .output {
+            font-weight: bold;
+            margin-top: 15px;
+            padding-top: 10px;
+            white-space: pre;
+            background: #e8e8e8;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid black;
+    padding: 10px;
+    text-align: right;
+    min-width: 150px; /* Adjust this value as needed */
+}
+
+th {
+    background-color: #f2f2f2;
+}
+    </style>
 </head>
 <body>
-
-  <div class="container">
-    <h2>Bill Calculator</h2>
+    <div class="container">
+        <h2>Bill Calculator</h2>
+        <label>Bill Type: 
+            <select id="billType" onchange="toggleBillType()">
+                <option value="final">Final Bill</option>
+                <option value="part">Part Bill</option>
+            </select>
+        </label>
+        
+        <div id="finalBillInputs">
+            <label>Total Value: <input type="number" id="totalValue"></label>
+            <label>Amount Already Paid: <input type="number" id="amountPaid"></label>
+            <label>Individual / Firm: 
+                <select id="entityType">
+                    <option value="individual">Individual</option>
+                    <option value="firm">Firm</option>
+                </select>
+            </label>
+            <label>IT Deducted: <input type="number" id="itDeducted"></label>
+            <label>GST Deducted: <input type="number" id="gstDeducted"></label>
+            <label>Deduct GST? <input type="checkbox" id="deductGST"></label>
+        </div>
+        
+        <div id="partBillInputs" style="display:none;">
+            <label>Bill Value: <input type="number" id="billValue"></label>
+            <label>Amount Already Paid: <input type="number" id="partAmountPaid"></label>
+            <label>Individual / Firm: 
+                <select id="partEntityType">
+                    <option value="individual">Individual</option>
+                    <option value="firm">Firm</option>
+                </select>
+            </label>
+            <label>IT Deducted: <input type="number" id="partItDeducted"></label>
+            <label>GST Deducted: <input type="number" id="partGstDeducted"></label>
+            <label>Deduct GST? <input type="checkbox" id="partDeductGST"></label>
+        </div>
+        
+        <button onclick="calculateBill()">Calculate</button>
+        
+        <div class="output" id="output"></div>
+    </div>
     
-    <label for="gross">Gross Value:</label>
-    <input type="number" id="gross" placeholder="Enter Gross Value">
-    
-    <label for="entity">Entity Type:</label>
-    <select id="entity">
-      <option value="individual">Individual</option>
-      <option value="firm">Firm</option>
-    </select>
-    
-    <button onclick="calculateBill()">Calculate</button>
-    
-    <div id="output"></div>
-    
-    <button class="print-btn" onclick="printResults()">Print Results</button>
-  </div>
+    <script>
+        function toggleBillType() {
+            let billType = document.getElementById('billType').value;
+            document.getElementById('finalBillInputs').style.display = billType === 'final' ? 'block' : 'none';
+            document.getElementById('partBillInputs').style.display = billType === 'part' ? 'block' : 'none';
+        }
+        
+        function calculateBill() {
+            let billType = document.getElementById('billType').value;
+            let output = document.getElementById('output');
+              let tableHTML = "<table border='1'><tr><th>Parameter</th><th>Value</th></tr>";
 
-  <script>
-    function calculateBill() {
-      var gross = parseFloat(document.getElementById("gross").value);
-      var entity = document.getElementById("entity").value;
-
-      if (isNaN(gross) || gross <= 0) {
-        alert("Please enter a valid Gross Value.");
-        return;
-      }
-
-      // Perform calculations locally
-      var taxable = gross / 1.18;
-      var IT = entity === "individual" ? Math.round(taxable * 0.01) : Math.round(taxable * 0.02);
-      var WHA = Math.round(gross * 0.05);
-      var GST = taxable > 250000 ? Math.ceil(taxable * 0.02 / 2) * 2 : 0;
-      var net = gross - IT - WHA;
-      var ECS = net - GST;
-
-      var outputDiv = document.getElementById("output");
-      outputDiv.innerHTML = `
-        <table>
-          <tr><th>Deduction</th><th>Amount (₹)</th></tr>
-          <tr><td>IT</td><td>${IT}</td></tr>
-          <tr><td>WHA</td><td>${WHA}</td></tr>
-          <tr><td>Net</td><td>${net}</td></tr>
-          <tr><td>GST</td><td>${GST}</td></tr>
-          <tr><td>ECS</td><td>${ECS}</td></tr>
-        </table>
-      `;
-      outputDiv.style.display = "block";
-    }
-
-    function printResults() {
-      var content = document.getElementById("output").innerHTML;
-      var printWindow = window.open('', '', 'height=400,width=600');
-      printWindow.document.write('<html><head><title>Bill Calculation</title></head><body>');
-      printWindow.document.write('<h2>Bill Calculation</h2>');
-      printWindow.document.write(content);
-      printWindow.document.write('</body></html>');
-      printWindow.document.close();
-      printWindow.print();
-    }
-  </script>
-
+            
+            if (billType === 'final') {
+                let totalValue = parseFloat(document.getElementById('totalValue').value) || 0;
+                let amountPaid = parseFloat(document.getElementById('amountPaid').value) || 0;
+                let entityType = document.getElementById('entityType').value;
+                let itDeducted = parseFloat(document.getElementById('itDeducted').value) || 0;
+                let gstDeducted = parseFloat(document.getElementById('gstDeducted').value) || 0;
+                let deductGST = document.getElementById('deductGST').checked;
+                
+                let taxableValue = Math.round(totalValue / 1.18);
+                let amountToBePaid = totalValue - amountPaid;
+                let itDeduction = Math.round((entityType === 'individual' ? 0.01 : 0.02) * taxableValue - itDeducted);
+                let whaDeduction = Math.round(totalValue * 0.05);
+                let gstDeduction = deductGST ? Math.round(0.02 * taxableValue - gstDeducted) : 0;
+                if (gstDeduction % 2 !== 0) gstDeduction++;
+                let totalDeduction = itDeduction + whaDeduction;
+                let netValue = amountToBePaid - totalDeduction;
+                let ecs = netValue - gstDeduction;
+                
+                tableHTML +=  `<tr><td>Total Value</td><td>${totalValue}</td></tr>
+                              <tr><td>Amount Paid</td><td>${amountPaid}</td></tr>
+                              <tr><td>Amount to be Paid</td><td>${amountToBePaid}</td></tr>
+                              <tr><td>IT Deduction</td><td>${itDeduction}</td></tr>
+                              <tr><td>WHA Deduction</td><td>${whaDeduction}</td></tr>
+                              <tr><td>Total Deduction</td><td>${totalDeduction}</td></tr>
+                              <tr><td>Net Value</td><td>${netValue}</td></tr>
+                              <tr><td>GST Deduction</td><td>${gstDeduction}</td></tr>
+                              <tr><td>ECS</td><td>${ecs}</td></tr>`;
+                              
+               	
+            } else {
+                let billValue = parseFloat(document.getElementById('billValue').value) || 0;
+                let partAmountPaid = parseFloat(document.getElementById('partAmountPaid').value) || 0;
+                let partEntityType = document.getElementById('partEntityType').value;
+                let partItDeducted = parseFloat(document.getElementById('partItDeducted').value) || 0;
+                let partGstDeducted = parseFloat(document.getElementById('partGstDeducted').value) || 0;
+                let partDeductGST = document.getElementById('partDeductGST').checked;
+                
+                let taxableValue = Math.round(billValue * 0.95);
+                let whaDeduction = Math.round(billValue * 0.05);
+                let addgst = Math.round(taxableValue * 0.18);
+                let grossValue = taxableValue + Math.round(taxableValue * 0.18);
+                let amountNowToBePaid = grossValue - partAmountPaid;
+                let itDeduction = Math.round((partEntityType === 'individual' ? 0.01 : 0.02) * taxableValue - partItDeducted);
+                let gstDeduction = partDeductGST ? Math.round(0.02 * taxableValue - partGstDeducted) : 0;
+                if (gstDeduction % 2 !== 0) gstDeduction++;
+                let netValue = amountNowToBePaid - itDeduction;
+                let ecs = netValue - gstDeduction;
+                
+                 tableHTML += `<tr><td>Bill Value</td><td>${billValue}</td></tr>
+                              <tr><td>WHA Deduction</td><td>${whaDeduction}</td></tr>
+                              <tr><td>Taxable Value</td><td>${taxableValue}</td></tr>
+                              <tr><td>ADD GST</td><td>${addgst}</td></tr>
+                              <tr><td>Gross Value</td><td>${grossValue}</td></tr>
+                              <tr><td>Amount Paid</td><td>${partAmountPaid}</td></tr>
+                              <tr><td>Amount Now to Be Paid</td><td>${amountNowToBePaid}</td></tr>
+                              <tr><td>IT Deduction</td><td>${itDeduction}</td></tr>
+                              <tr><td>Net Value</td><td>${netValue}</td></tr>
+                              <tr><td>GST Deduction</td><td>${gstDeduction}</td></tr>
+                              <tr><td>ECS</td><td>${ecs}</td></tr>`;
+            }
+           tableHTML += "</table>";
+            output.innerHTML = tableHTML;
+        }
+    </script>
 </body>
 </html>
-
