@@ -111,6 +111,7 @@ var taxable = gross / 1.18;
 var IT = entity === "individual" ? Math.round(taxable * 0.01) : Math.round(taxable * 0.02);
 var WHA = Math.round(gross * 0.05);
 var GST = taxable > 250000 ? Math.ceil(taxable * 0.02 / 2) * 2 : 0;
+var TOT = IT + WHA;
 var net = gross - IT - WHA;
 var ECS = net - GST;
 
@@ -120,6 +121,7 @@ outputDiv.innerHTML = `
          <tr><th>Deduction</th><th>Amount (₹)</th></tr>
          <tr><td>IT</td><td>${IT}</td></tr>
          <tr><td>WHA</td><td>${WHA}</td></tr>
+         <tr><td>Total Deductions</td><td>${TOT}</td></tr>
          <tr><td>Net</td><td>${net}</td></tr>
          <tr><td>GST</td><td>${GST}</td></tr>
          <tr><td>ECS</td><td>${ECS}</td></tr>
